@@ -1,0 +1,128 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{klangtrabant}[2017/12/30 package klangtrabant]
+
+% \def\current@color{}
+\def\pdfcolorstackinit{\pdffeedback colorstackinit}
+\protected\edef\pdfpageresources{\pdfvariable pageresources}
+\protected\def\pdfcolorstack{\pdfextension colorstack}
+
+
+\RequirePackage{tikz,luatextra,pgfopts,transparent,pbox}
+\usetikzlibrary{patterns}
+
+\newif\ifklangtrabantdotpatterns
+\@ifundefined{klangtrabantdotpatterns}{}{\klangtrabantdotpatternstrue}
+\providecommand{\klangtrabantfill}{\fill[white]}
+
+\ifklangtrabantdotpatterns
+    \providecommand{\klangtrabanthide}{\transparent{0}}
+    \providecommand{\klangtrabantshow}{\transparent{1}}
+\else
+    \providecommand{\klangtrabanthide}{}
+    \providecommand{\klangtrabantshow}{}
+\fi
+
+%Options
+\pgfkeys{/klangtrabant/.cd,
+prefix/.store in=\klangtrabant@prefix,
+dotsize/.store in=\klangtrabant@dotsize,
+blocksize/.store in=\klangtrabant@blocksize,
+shift/.store in=\klangtrabant@shift,
+dpi/.store in=\klangtrabant@dpi,
+}
+\ProcessPgfOptions*
+\providecommand{\klangtrabant@prefix}{}
+\providecommand{\klangtrabant@dotsize}{1}
+\providecommand{\klangtrabant@blocksize}{8}
+\providecommand{\klangtrabant@shift}{1}
+\providecommand{\klangtrabant@dpi}{600}
+\directlua{klangtrabant_prefix = "\klangtrabant@prefix"}
+
+\begin{luacode}
+klangtrabant_namespace = function(env)
+    if klangtrabant_prefix ~= "" then
+        env[klangtrabant_prefix] = {}
+        setmetatable(env[klangtrabant_prefix],{__index=env})
+        env = env[klangtrabant_prefix]
+    end
+    return env
+end
+
+
+klangtrabant_info = function()
+    tex.print("This is klangtrabant using namespace '" .. 
+        klangtrabant_prefix .. "'.")
+end
+\end{luacode}
+\begin{luacode*}
+_ENV = klangtrabant_namespace(_ENV)
+bsl = "\\"
+\end{luacode*}
+
+
+
+\directlua{
+_ENV = klangtrabant_namespace(_ENV)
+Book = require("klangtrabant.Book")
+Entry = Book.Entry
+Macro = require("klangtrabant.Macro")
+Pattern = require("klangtrabant.Pattern")
+Assembler = require("klangtrabant.Assembler")
+curbook = Book()
+curdotsize = \klangtrabant@dotsize --[[]]
+curblocksize = \klangtrabant@blocksize --[[]]
+curshift = \klangtrabant@shift --[[]]
+curdpi = \klangtrabant@dpi --[[]]
+}
+
+
+\newcommand{\tingPattern}[1]{%
+\directlua{
+_ENV = klangtrabant_namespace(_ENV)
+local ename = "#1"
+ename = tonumber(ename) or ename
+local etr = curbook:entry(ename)
+pat = Pattern.fromOid(etr.oid,curdotsize,curblocksize,curshift,curdpi)
+pat:ensureDefinedInPgf()
+tex.sprint(bsl.."pattern[pattern="..pat:pgfpatname().."]")
+}%
+}
+
+\newsavebox{\klangtrabantsave}
+
+
+\ifklangtrabantdotpatterns
+    \newcommand{\pboxOrPattern}[2]{
+        \savebox{\klangtrabantsave}{\pbox{\linewidth}{#2}}
+        {\klangtrabantshow
+            \begin{tikzpicture}
+            \tingPattern{#1} (0,0) rectangle(\wd\klangtrabantsave,%
+                \ht\klangtrabantsave+\dp\klangtrabantsave);
+            \end{tikzpicture}
+        }
+    }
+    \newcommand{\pathOrPattern}[3]{
+        {\klangtrabantshow
+        \klangtrabantfill #3;
+        \tingPattern{#2} #3;}
+    }
+\else
+    \newcommand{\pboxOrPattern}[2]{
+        \savebox{\klangtrabantsave}{\parbox[b]{\linewidth}{#2}}
+        \usebox{\klangtrabantsave}
+    }
+    \newcommand{\pathOrPattern}[3]{\path[#1] #3;}
+\fi
+
+
+
+
+\AtBeginDocument{%
+  \ifklangtrabantdotpatterns
+%     \nopagecolor
+    \klangtrabanthide
+  \fi%
+}
+
+
+
