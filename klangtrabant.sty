@@ -1,5 +1,22 @@
+%
+%     Copyright (C) 2017,2018   Frank Fuhlbrück <frank@fuhlbrueck.net>
+%
+%     This program is free software; you can redistribute it and/or modify
+%     it under the terms of the GNU General Public License as published by
+%     the Free Software Foundation; either version 2 of the License, or
+%     (at your option) any later version.
+%     This program is distributed in the hope that it will be useful,
+%     but WITHOUT ANY WARRANTY; without even the implied warranty of
+%     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%     GNU General Public License for more details.
+%     You should have received a copy of the GNU General Public License along
+%     with this program; if not, write to the Free Software Foundation, Inc.,
+%     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+%
+%
+
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{klangtrabant}[2017/12/30 package klangtrabant]
+\ProvidesPackage{klangtrabant}[2018/01/05 package klangtrabant]
 
 % \def\current@color{}
 \def\pdfcolorstackinit{\pdffeedback colorstackinit}
@@ -29,6 +46,7 @@ dotsize/.store in=\klangtrabant@dotsize,
 blocksize/.store in=\klangtrabant@blocksize,
 shift/.store in=\klangtrabant@shift,
 dpi/.store in=\klangtrabant@dpi,
+system/.store in=\klangtrabant@system,  
 }
 \ProcessPgfOptions*
 \providecommand{\klangtrabant@prefix}{}
@@ -36,6 +54,7 @@ dpi/.store in=\klangtrabant@dpi,
 \providecommand{\klangtrabant@blocksize}{8}
 \providecommand{\klangtrabant@shift}{1}
 \providecommand{\klangtrabant@dpi}{600}
+\providecommand{\klangtrabant@system}{ting}
 \directlua{klangtrabant_prefix = "\klangtrabant@prefix"}
 
 \begin{luacode}
@@ -67,6 +86,7 @@ Book = require("klangtrabant.Book")
 Entry = Book.Entry
 Macro = require("klangtrabant.Macro")
 Pattern = require("klangtrabant.Pattern")
+Pattern.sysinit("\klangtrabant@system")
 Assembler = require("klangtrabant.Assembler")
 curbook = Book()
 curdotsize = \klangtrabant@dotsize --[[]]
@@ -76,13 +96,13 @@ curdpi = \klangtrabant@dpi --[[]]
 }
 
 
-\newcommand{\tingPattern}[1]{%
+\newcommand{\ktPattern}[1]{%
 \directlua{
 _ENV = klangtrabant_namespace(_ENV)
 local ename = "#1"
 ename = tonumber(ename) or ename
 local etr = curbook:entry(ename)
-pat = Pattern.fromOid(etr.oid,curdotsize,curblocksize,curshift,curdpi)
+pat = Pattern.fromId(etr.oid,curdotsize,curblocksize,curshift,curdpi)
 pat:ensureDefinedInPgf()
 tex.sprint(bsl.."pattern[pattern="..pat:pgfpatname().."]")
 }%
@@ -96,7 +116,7 @@ tex.sprint(bsl.."pattern[pattern="..pat:pgfpatname().."]")
         \savebox{\klangtrabantsave}{\pbox{\linewidth}{#2}}
         {\klangtrabantshow
             \begin{tikzpicture}
-            \tingPattern{#1} (0,0) rectangle(\wd\klangtrabantsave,%
+            \ktPattern{#1} (0,0) rectangle(\wd\klangtrabantsave,%
                 \ht\klangtrabantsave+\dp\klangtrabantsave);
             \end{tikzpicture}
         }
@@ -104,7 +124,7 @@ tex.sprint(bsl.."pattern[pattern="..pat:pgfpatname().."]")
     \newcommand{\pathOrPattern}[3]{
         {\klangtrabantshow
         \klangtrabantfill #3;
-        \tingPattern{#2} #3;}
+        \ktPattern{#2} #3;}
     }
 \else
     \newcommand{\pboxOrPattern}[2]{

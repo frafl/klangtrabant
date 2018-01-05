@@ -3,15 +3,18 @@
 # Klangtrabant
 Klangtrabant is a lua library and LuaLaTeX package for creating
 books for the so called Ting pen.
+There is now experimental support for tiptoi patterns
+(but no logic support) as well.
 
-Relation to Tingeltangel
+Relation to Tingeltangel and tttool
 ----
 Major parts of this software were taken from Tingeltangel (see
 https://www.ting-el-tangel.de)
 and ported from Java to Lua. Thus its authors (mostly Martin Dames
 but also Jesper Zedlitz) are listed as Copyright holders in the
 respective source files. Please do not blame them for any bugs in
-Klangtrabant.
+Klangtrabant. Information on valid tiptoi code patterns where used from
+tttool as well, but no further code.
 
 Why another tool if Tingeltangel works well?
 ----
@@ -56,10 +59,18 @@ How to use ...
  not print the combined PDF as this may destroy the dot patterns due
  to optimizations done by many printers (or their drivers).
 
+License
+----
+ * This software is licensed under GPLv2+, see each file header.
+ * If you need a more permissive license (e.g. BSD-style) for the
+ LaTeX part and pattern generation, please contact the author.
+
 TODO
 ----
  * further testing
  * compatibility to Tingeltangel templates (mod,rnd,lock etc.)
  * Expand LuaLaTex package, e.g., more functionality accessible from
  LaTeX
+ * document API
+ * extended compatibility with tiptoi
 

@@ -1,5 +1,4 @@
 --[[
-    Copyright (C) 2015        Martin Dames <martin@bastionbytes.de>
     Copyright (C) 2017,2018   Frank Fuhlbrück <frank@fuhlbrueck.net>
   
     This program is free software; you can redistribute it and/or modify
@@ -30,6 +29,11 @@ local testcolors = {
     {"green","green","green","green"},
 }
 
+local fromIdAfterInit = function(id,dotsize,blocksize,shift,dpi)
+    return Pattern(Pattern.idToVal[id],dotsize,blocksize,
+        shift,dpi)
+end
+
 local Pattern
 Pattern = {
     new = function(value,dotsize,blocksize,shift,dpi)
@@ -37,6 +41,7 @@ Pattern = {
         if PatternCache[pn] then
             return PatternCache[pn]
         end
+        local fl = (Pattern.flipckbits and 1) or 0
         local pat = {value=value,dotsize=dotsize,shift=shift,
             blocksize=blocksize,dpi=dpi}
         local SHMPL = Pattern.SHMPL
@@ -45,7 +50,8 @@ Pattern = {
             w[i] = value % 4
             value = (value - w[i])/4
         end
-        local ck = 2*((w[1]+w[4]+w[6]+w[7])%2)+(w[0]+w[2]+w[3]+w[5])%2
+        local ck = 2*((w[1]+w[4]+w[6]+w[7]+fl)%2)+
+            (w[0]+w[2]+w[3]+w[5]+fl)%2
         pat[1] = {SHMPL[Pattern.CC],SHMPL[w[2]],SHMPL[w[1]],SHMPL[w[0]]}
         pat[2] = {SHMPL[Pattern.CR],SHMPL[w[5]],SHMPL[w[4]],SHMPL[w[3]]}
         pat[3] = {SHMPL[Pattern.CC],SHMPL[ck],SHMPL[w[7]],SHMPL[w[6]]}
@@ -67,8 +73,8 @@ Pattern = {
             shift = pat.shift
             dpi = pat.dpi
         end
-        return "tingoid".. value.."."..dotsize.."."..blocksize.."."..
-            shift.."."..dpi
+        return Pattern.system .. "val".. value.."."..dotsize.."."..
+            blocksize..".".. shift.."."..dpi
     end,
 
     pgfdim = function(pat,pixels)
@@ -134,12 +140,24 @@ Pattern = {
         return
     end,
 
-    oidToVal = require("klangtrabant.patternOid"),
-    valToOid = {},
+    system = "ting",
+    idToVal = nil,
+    valToId = nil,
+
+    sysinit  = function(system)
+        Pattern.system = system or Pattern.system
+        Pattern.idToVal = require("klangtrabant.idToVal_"..
+            Pattern.system)
+        Pattern.valToId = {}
+        for i,v in pairs(Pattern.idToVal) do
+            Pattern.valToId[v] = i
+        end
+        Pattern.flipckbits = (system == "tiptoi")
+    end,
     
-    fromOid = function(oid,dotsize,blocksize,shift,dpi)
-        return Pattern(Pattern.oidToVal[oid],dotsize,blocksize,
-            shift,dpi)
+    fromId = function(id,dotsize,blocksize,shift,dpi)
+        Pattern.sysinit()
+        return fromIdAfterInit(id,dotsize,blocksize,shift,dpi)
     end,
 
     TL = 2,
@@ -156,9 +174,7 @@ Pattern = {
 }
 makeclass(Pattern)
 
-for o,v in pairs(Pattern.oidToVal) do
-    Pattern.valToOid[v] = o
-end
+
 
 
 return Pattern
