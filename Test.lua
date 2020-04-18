@@ -95,7 +95,7 @@ print(mul.apply(pow.apply("pow v1,v2,v0,v3,v4,pl\n")))
 print(var.apply("add $var,17"))
 
 
-local pat = Pattern.fromOid(5272,1,8,1,600)
+local pat = Pattern.fromId(5272,1,8,1,600)
 print(pat.value)
 for i=1,4 do for j=1,4 do
 print(pat[i][j].x,pat[i][j].y)

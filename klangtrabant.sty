@@ -128,7 +128,7 @@ tex.sprint(bsl.."pattern[pattern="..pat:pgfpatname().."]")
     }
 \else
     \newcommand{\pboxOrPattern}[2]{
-        \savebox{\klangtrabantsave}{\parbox[b]{\linewidth}{#2}}
+        \savebox{\klangtrabantsave}{\pbox[b]{\linewidth}{#2}}
         \usebox{\klangtrabantsave}
     }
     \newcommand{\pathOrPattern}[3]{\path[#1] #3;}

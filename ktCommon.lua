@@ -26,9 +26,11 @@ getModuleTex = function(module)
             return dofile(s)
         end
     end
+    --if we do not find it elsewhere look inside the
+    --klangtrabant folder
+    return require("klangtrabant."..module)
 end
 local re = getModuleTex("re")
-
 
 local concatWithToString = function(t1,t2)
     return  tostring(t1) ..  tostring(t2)

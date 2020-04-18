@@ -29,12 +29,12 @@ local testcolors = {
     {"green","green","green","green"},
 }
 
+local Pattern
 local fromIdAfterInit = function(id,dotsize,blocksize,shift,dpi)
     return Pattern(Pattern.idToVal[id],dotsize,blocksize,
         shift,dpi)
 end
 
-local Pattern
 Pattern = {
     new = function(value,dotsize,blocksize,shift,dpi)
         local pn = Pattern.pgfpatname(value,dotsize,blocksize,shift,dpi)

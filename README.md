@@ -43,7 +43,9 @@ How to install (under most Linux/Unix systems)
  * LuaTeX can be called as texlua and comes with lpeg. If you use that,
  download re separately e.g.
  from https://raw.githubusercontent.com/LuaDist/lpeg/master/re.lua
- to the Klangtrabant folder
+ to the Klangtrabant folder or use the same version of a normal
+ lua binary (e.g. Lua 5.3 for texlua from LuaLaTeX 1.20) to
+ install re via luarocks
  * Create a symbolic link for the executable script:
  ln -s ~/texmf/wherever/you/cloned/klangtrabant.sh ~/bin/klangtrabant
 
